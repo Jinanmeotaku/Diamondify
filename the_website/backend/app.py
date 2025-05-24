@@ -17,13 +17,16 @@ def pixelate_image(image_path, pixel_size, output_path, line_color=(0, 0, 0)):
         small_img = img.resize(
             (width // pixel_size, height // pixel_size), Image.NEAREST
         )
+
         result = small_img.resize((width, height), Image.NEAREST)
+
         draw = ImageDraw.Draw(result)
-        for y in range(0, height, pixel_size):
+        for y in range(5, height, pixel_size):
             draw.line((0, y, width, y), fill=line_color)
 
-        for x in range(0, width, pixel_size):
+        for x in range(18, width, pixel_size):
             draw.line((x, 0, x, height), fill=line_color)
+
         result.save(output_path)
 
     except FileNotFoundError:
@@ -32,7 +35,7 @@ def pixelate_image(image_path, pixel_size, output_path, line_color=(0, 0, 0)):
          print(f"An error occurred: {e}")
 
 # Usage:
-imageName = "cat.jpg"
+imageName = "horse.jpg"
 inputPath = "assets/" + imageName
 outputPath = "outputs/" + imageName
 spacing = 50
