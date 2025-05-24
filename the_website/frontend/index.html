@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diamondify</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Diamondify</h1>
+    <div class="upload-container">
+      <input type="file" id="imageInput" accept="image/*">
+      <div style="margin: 10px 0;">
+        <label for="pixelSize">Pixel Size: </label>
+        <input type="number" id="pixelSize" value="50" min="10" max="200" style="width: 60px;">
+      </div>
+      <button id="generateBtn">Generate Pattern</button>
+    </div>
+    
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>Processing your image...</p>
+    </div>
+
+    <div id="result" class="hidden">
+      <h2>Generated Pattern</h2>
+      <img id="resultImage" src="" alt="Generated pattern">
+      <div id="colorAnalysis"></div>
+    </div>
+  </div>
+
+  <script>
+    const generateBtn = document.getElementById('generateBtn');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    const resultImage = document.getElementById('resultImage');
+
+    generateBtn.addEventListener('click', async () => {
+      const fileInput = document.getElementById('imageInput');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Please select an image first');
+        return;
+      }
+
+      // Show loading, hide result
+      loading.classList.remove('hidden');
+      result.classList.add('hidden');
+      generateBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('pixel_size', document.getElementById('pixelSize').value);
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Add timestamp to prevent caching
+          resultImage.src = `${data.image_url}?t=${Date.now()}`;
+          result.classList.remove('hidden');
+          
+          const colorAnalysis = document.getElementById('colorAnalysis');
+          colorAnalysis.innerHTML = '<h2>Color Analysis</h2>';
+          
+          for (const [hex, info] of Object.entries(data.colors)) {
+            const colorDiv = document.createElement('div');
+            colorDiv.className = 'color-item';
+            colorDiv.innerHTML = `
+              <div class="color-box" style="background-color: ${hex}"></div>
+              <span>Count: ${info.count}</span>
+              <span>Hex: ${hex}</span>
+            `;
+            colorAnalysis.appendChild(colorDiv);
+          }
+        } else {
+          alert('Error: ' + (data.error || 'Failed to generate pattern'));
+        }
+      } catch (error) {
+        alert('Error generating pattern: ' + error.message);
+      } finally {
+        loading.classList.add('hidden');
+        generateBtn.disabled = false;
+      }
+    });
+
+    // Handle image load errors
+    resultImage.onerror = function() {
+      alert('Error loading the generated image. Please try again.');
+      result.classList.add('hidden');
+    };
+  </script>
+</body>
+</html>
