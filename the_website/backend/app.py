@@ -1,3 +1,18 @@
+
+# backend/app.py
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/data')
+def get_data():
+    return jsonify({'message': 'Hello from the backend!'})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 from PIL import Image
 
 def pixelate_image(image_path, pixel_size, output_path):
@@ -28,3 +43,4 @@ imageName = "horse.jpg"
 inputPath = "assets/" + imageName
 outputPath = "outputs/" + imageName
 pixelate_image(inputPath, 5, outputPath)
+
