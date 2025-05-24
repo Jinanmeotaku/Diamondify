@@ -24,7 +24,7 @@ def pixelate_image(image_path, pixel_size, output_path):
          print(f"An error occurred: {e}")
 
 # Example usage:
-imageName = "flower.jpg"
+imageName = "horse.jpg"
 inputPath = "assets/" + imageName
 outputPath = "outputs/" + imageName
-pixelate_image(inputPath, 50, outputPath)
+pixelate_image(inputPath, 5, outputPath)
