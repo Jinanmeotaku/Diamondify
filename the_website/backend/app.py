@@ -31,7 +31,7 @@ def pixelate_image(image_path, pixel_size, output_path, line_color=(0, 0, 0)):
     except Exception as e:
          print(f"An error occurred: {e}")
 
-# Example usage:
+# Usage:
 imageName = "cat.jpg"
 inputPath = "assets/" + imageName
 outputPath = "outputs/" + imageName
