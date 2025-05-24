@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Puzzle Loader</title>
+  <style>
+    body {
+      margin: 0;
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    canvas {
+      border: 2px solid white;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const image = new Image();
+    image.src = "\\assets\\loadScreenImage.jpg"; // make sure this image is in the same folder
+    image.onload = () => {
+      console.log("Image loaded, slicing into pieces...");
+
+      const rows = 5, cols = 5;
+      const pieceWidth = image.width / cols;
+      const pieceHeight = image.height / rows;
+      const drawWidth = canvas.width / cols;
+      const drawHeight = canvas.height / rows;
+
+      const pieces = [];
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          pieces.push({
+            srcX: col * pieceWidth,
+            srcY: row * pieceHeight,
+            correctX: col * drawWidth,
+            correctY: row * drawHeight,
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+          });
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let p of pieces) {
+          p.x += (p.correctX - p.x) * 0.03;
+          p.y += (p.correctY - p.y) * 0.03;
+
+          if (Math.abs(p.x - p.correctX) < 0.5) p.x = p.correctX;
+          if (Math.abs(p.y - p.correctY) < 0.5) p.y = p.correctY;
+
+          ctx.drawImage(
+            image,
+            p.srcX, p.srcY, pieceWidth, pieceHeight,   // source from original image
+            p.x, p.y, drawWidth, drawHeight            // destination on canvas
+          );
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    };
+  </script>
+</body>
+</html>
