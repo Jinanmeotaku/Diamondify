@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory,send_file
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw, ImageFont
 from collections import Counter
@@ -47,7 +47,7 @@ def get_contrast_color(rgb):
     brightness = (r*299 + g*587 + b*114) / 1000
     return "black" if brightness > 160 else "white"
 
-def draw_pixel_art_grid(pixel_img, color_numbers, colors, font_size=18):
+def draw_pixel_art_grid(pixel_img, color_numbers, colors, font_size=16):
     img = pixel_img.copy()
     draw = ImageDraw.Draw(img)
     font = load_font(font_size)
@@ -76,7 +76,7 @@ def pixelate_and_label_image(input_path, output_path, pixel_size=30, n_colors=25
     small = img.resize((img.width // pixel_size, img.height // pixel_size), Image.NEAREST)
     quantized_img, color_map, colors = quantize_image_colors(small, n_colors=n_colors)
     pixel_img = quantized_img.resize((quantized_img.width * pixel_size, quantized_img.height * pixel_size), Image.NEAREST)
-    labeled = draw_pixel_art_grid(pixel_img, color_map, colors, font_size=max(10, pixel_size // 2))
+    labeled = draw_pixel_art_grid(pixel_img, color_map, colors, font_size=max(8, pixel_size // 2))
     labeled.save(output_path)
     return True
 
@@ -186,6 +186,14 @@ def serve_output(filename):
         return send_from_directory(OUTPUT_FOLDER, filename)
     except Exception as e:
         logger.error(f"Error serving output file: {str(e)}")
+        return jsonify({'error': str(e)}), 404
+    
+@app.route("/download/<filename>")
+def download(filename):
+    try:
+        return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
+    except Exception as e:
+        logger.error(f"Error downloading file: {str(e)}")
         return jsonify({'error': str(e)}), 404
 
 if __name__ == '__main__':
