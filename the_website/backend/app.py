@@ -1,3 +1,4 @@
+ 
 from PIL import Image
 
 def pixelate_image(image_path, pixel_size, output_path):
@@ -27,4 +28,4 @@ def pixelate_image(image_path, pixel_size, output_path):
 imageName = "horse.jpg"
 inputPath = "assets/" + imageName
 outputPath = "outputs/" + imageName
-pixelate_image(inputPath, 5, outputPath)
+pixelate_image(inputPath, 75, outputPath)
