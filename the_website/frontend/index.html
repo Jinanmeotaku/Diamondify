@@ -25,7 +25,10 @@
 
     <div id="result" class="hidden">
       <h2>Generated Pattern</h2>
-      <img id="resultImage" src="" alt="Generated pattern">
+      <div class="image-container">
+        <img id="resultImage" src="" alt="Generated pattern">
+        <button id="downloadBtn" class="download-btn hidden">Download Pattern</button>
+      </div>
       <div id="colorAnalysis"></div>
     </div>
   </div>
@@ -35,6 +38,7 @@
     const loading = document.getElementById('loading');
     const result = document.getElementById('result');
     const resultImage = document.getElementById('resultImage');
+    const downloadBtn = document.getElementById('downloadBtn');
 
     generateBtn.addEventListener('click', async () => {
       const fileInput = document.getElementById('imageInput');
@@ -66,6 +70,11 @@
           // Add timestamp to prevent caching
           resultImage.src = `${data.image_url}?t=${Date.now()}`;
           result.classList.remove('hidden');
+          
+          // Extract filename from the image URL and show download button
+          const filename = data.image_url.split('/').pop();
+          downloadBtn.onclick = () => window.location.href = `/download/${filename}`;
+          downloadBtn.classList.remove('hidden');
           
           const colorAnalysis = document.getElementById('colorAnalysis');
           colorAnalysis.innerHTML = '<h2>Color Analysis</h2>';
