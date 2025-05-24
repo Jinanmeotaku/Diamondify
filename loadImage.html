@@ -12,21 +12,50 @@
       align-items: center;
       height: 100vh;
     }
+
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     canvas {
       border: 2px solid white;
       background: black;
     }
+
+    #loading-bar-container {
+      width: 500px;
+      height: 20px;
+      border: 2px solid #fff;
+      margin-top: 10px;
+      background: #444;
+    }
+
+    #loading-bar {
+      height: 100%;
+      width: 0%;
+      background: limegreen;
+      transition: width 0.1s;
+    }
   </style>
 </head>
 <body>
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <div id="container">
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <div id="loading-bar-container">
+      <div id="loading-bar"></div>
+    </div>
+  </div>
 
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const bar = document.getElementById('loading-bar');
 
     const image = new Image();
-    image.src = "\\assets\\loadScreenImage.jpg"; // make sure this image is in the same folder
+    image.src = "./assets/loadScreenImage.jpg"; // ✅ Adjust this path as needed
+
     image.onload = () => {
       console.log("Image loaded, slicing into pieces...");
 
@@ -54,19 +83,28 @@
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        let placed = 0;
         for (let p of pieces) {
           p.x += (p.correctX - p.x) * 0.03;
           p.y += (p.correctY - p.y) * 0.03;
 
-          if (Math.abs(p.x - p.correctX) < 0.5) p.x = p.correctX;
-          if (Math.abs(p.y - p.correctY) < 0.5) p.y = p.correctY;
+          const snapX = Math.abs(p.x - p.correctX) < 0.5;
+          const snapY = Math.abs(p.y - p.correctY) < 0.5;
+
+          if (snapX) p.x = p.correctX;
+          if (snapY) p.y = p.correctY;
+
+          if (snapX && snapY) placed++;
 
           ctx.drawImage(
             image,
-            p.srcX, p.srcY, pieceWidth, pieceHeight,   // source from original image
-            p.x, p.y, drawWidth, drawHeight            // destination on canvas
+            p.srcX, p.srcY, pieceWidth, pieceHeight,
+            p.x, p.y, drawWidth, drawHeight
           );
         }
+
+        const progress = (placed / pieces.length) * 100;
+        bar.style.width = `${progress}%`;
 
         requestAnimationFrame(animate);
       }
