@@ -1,0 +1,141 @@
+Diamondify
+
+FIRST!! cd to root directory "Diamondify"
+setup and initialize virtual environment
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements
+
+1. setup project structure
+
+my-website/
+|-- backend/
+|   |-- app.py
+|   |-- requirements.txt
+|-- frontend/
+|   |-- index.html
+|   |-- style.css
+|   |-- src/
+|   |   |-- index.ts
+|   |-- tsconfig.json
+|   |-- package.json
+
+
+2. python file (backend)
+
+# backend/app.py
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/data')
+def get_data():
+    return jsonify({'message': 'Hello from the backend!'})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+3. put requirements into requirements.txt
+
+# backend/requirements.txt
+Flask
+Flask-CORS
+
+4. Run pip install -r requirements.txt in the backend directory to install dependencies.
+
+5. Create frontend (html, Css, typescript)
+
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Simple Website</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1>My Website</h1>
+        <p id="message"></p>
+    </div>
+    <script src="dist/index.js"></script>
+</body>
+</html>
+
+6. frontend style.css
+
+/* frontend/style.css */
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+}
+
+#app {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+7. typescript
+
+// frontend/src/index.ts
+async function fetchData() {
+    const response = await fetch('http://localhost:5000/api/data');
+    const data = await response.json();
+    document.getElementById('message')!.textContent = data.message;
+}
+
+fetchData();
+
+8. tsconfig
+
+// frontend/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ES6",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+
+9.  //frontend/package.json - Note: no comments allowed in JSON file
+
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ES6",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
+
+10. run "npm install" in the fronted directory
+
+11. run the website
+	Start the backend: cd backend and python app.py.
+	Start the frontend: cd frontend and npm run start.
+	Open your browser and go to http://localhost:8080.
+
+Error message live-server run version
+or tsc missing
+
+sudo npm install --save @types/live-server
+sudo apt install node-typescript
