@@ -71,7 +71,7 @@ def draw_pixel_art_grid(pixel_img, color_numbers, colors, font_size=16):
             draw.text((text_x, text_y), label, fill=contrast_color, font=font)
     return img
 
-def pixelate_and_label_image(input_path, output_path, pixel_size=30, n_colors=25):
+def pixelate_and_label_image(input_path, output_path, pixel_size=50, n_colors=8):
     img = Image.open(input_path).convert("RGB")
     small = img.resize((img.width // pixel_size, img.height // pixel_size), Image.NEAREST)
     quantized_img, color_map, colors = quantize_image_colors(small, n_colors=n_colors)
@@ -81,7 +81,7 @@ def pixelate_and_label_image(input_path, output_path, pixel_size=30, n_colors=25
     # save the quantized image for color analysis
     quantized_path = output_path.replace('.', '_quantized.')
     quantized_img.save(quantized_path)
-    return True , quantized_path
+    return True, quantized_path
 
 def reduce_colors(image_path, num_colors=32, output_path=None):
     try:
@@ -99,7 +99,7 @@ def reduce_colors(image_path, num_colors=32, output_path=None):
         print(f"An error occurred: {e}")
         return None
 
-def analyze_colors(image_path, num_colors=32):
+def analyze_colors(image_path, num_colors=32, color_map=None, colors=None):
     try:
         reduced_img = reduce_colors(image_path, num_colors)
         if reduced_img is None:
@@ -111,9 +111,18 @@ def analyze_colors(image_path, num_colors=32):
         color_analysis = {}
         for rgb, count in color_counts.items():
             hex_code = '#{:02x}{:02x}{:02x}'.format(rgb[0], rgb[1], rgb[2])
+            # Find the color number from the KMeans colors
+            color_number = None
+            if colors is not None:
+                for i, color in enumerate(colors):
+                    if tuple(color) == rgb:
+                        color_number = i + 1
+                        break
+            
             color_analysis[hex_code] = {
                 'count': count,
-                'rgb': rgb
+                'rgb': rgb,
+                'number': color_number
             }
 
         color_analysis = dict(sorted(color_analysis.items(),
@@ -158,11 +167,16 @@ def generate():
         
         logger.debug("Starting image processing")
         success, quantized_path = pixelate_and_label_image(input_path, output_path, pixel_size)
-        if not pixelate_and_label_image(input_path, output_path, pixel_size):
+        if not success:
             return jsonify({'error': 'Failed to process image'}), 500
             
+        # Get the color map and colors from the quantized image
+        img = Image.open(input_path).convert("RGB")
+        small = img.resize((img.width // pixel_size, img.height // pixel_size), Image.NEAREST)
+        _, color_map, colors = quantize_image_colors(small, n_colors=8)
+            
         logger.debug("Analyzing colors")
-        colors = analyze_colors(quantized_path, num_colors=32)
+        colors = analyze_colors(quantized_path, num_colors=32, color_map=color_map, colors=colors)
         
         logger.debug("Generation complete")
         return jsonify({
