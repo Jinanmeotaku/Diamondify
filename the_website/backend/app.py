@@ -78,7 +78,10 @@ def pixelate_and_label_image(input_path, output_path, pixel_size=30, n_colors=25
     pixel_img = quantized_img.resize((quantized_img.width * pixel_size, quantized_img.height * pixel_size), Image.NEAREST)
     labeled = draw_pixel_art_grid(pixel_img, color_map, colors, font_size=max(8, pixel_size // 2))
     labeled.save(output_path)
-    return True
+    # save the quantized image for color analysis
+    quantized_path = output_path.replace('.', '_quantized.')
+    quantized_img.save(quantized_path)
+    return True , quantized_path
 
 def reduce_colors(image_path, num_colors=32, output_path=None):
     try:
@@ -154,11 +157,12 @@ def generate():
         file.save(input_path)
         
         logger.debug("Starting image processing")
+        success, quantized_path = pixelate_and_label_image(input_path, output_path, pixel_size)
         if not pixelate_and_label_image(input_path, output_path, pixel_size):
             return jsonify({'error': 'Failed to process image'}), 500
             
         logger.debug("Analyzing colors")
-        colors = analyze_colors(output_path, num_colors=32)
+        colors = analyze_colors(quantized_path, num_colors=32)
         
         logger.debug("Generation complete")
         return jsonify({
